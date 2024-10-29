@@ -16,6 +16,7 @@ bg = pygame.image.load("./images/chessboard.png") # 加载背景图片
 # 定义窗口大小
 screen = pygame.display.set_mode((800,700))
 
+停止游戏 = False
 黑棋 = 1
 白棋 = 2
 当前棋子 = 黑棋
@@ -98,25 +99,67 @@ def check_winner(row, col, chess):
     for i in range(1, 5):
         if col+i <= 单元格数量 and 棋盘地图[row][col+i] == chess:
             count += 1
+        else:
+            break
     # # 向左检查
     for i in range(1, 5):
         if col-i>=0 and 棋盘地图[row][col-i] == chess:
             count += 1
-    print(count)
+        else:
+            break
+    print("左右检查连接棋子数=", count, "chess=", chess)
     if count >= 5:
         return chess
 
-    # # 向上检查
-    # count = 1
-    # for i in range(1, 5):
-    #     if col-i>=0 and 棋盘地图[row-i][col] == chess:
-    #         count += 1
-    # # 向下检查
-    # for i in range(1, 5):
-    #     if col+i <= 单元格数量 and 棋盘地图[row+i][col] == chess:
-    #         count += 1
-    # if count >= 5:
-    #     return chess
+    # 向上检查
+    count = 1
+    for i in range(1, 5):
+        if row-i>=0 and 棋盘地图[row-i][col] == chess:
+            count += 1
+        else:
+            break
+    # 向下检查
+    for i in range(1, 5):
+        if row+i <= 单元格数量 and 棋盘地图[row+i][col] == chess:
+            count += 1
+        else:
+            break
+    print("上下检查连接棋子数=", count, "chess=", chess)
+    if count >= 5:
+        return chess
+    
+    #右上检查
+    count = 1
+    for i in range(1, 5):
+        if row-i >= 0 and col+i <= 单元格数量 and 棋盘地图[row-i][col+i] == chess:
+            count += 1
+        else:
+            break
+    # 左下
+    for i in range(1, 5):
+        if row-i >= 0 and col-i >= 0 and 棋盘地图[row-i][col-i] == chess:
+            count += 1
+        else:
+            break
+    print("右上左下检查连接棋子数=", count, "chess=", chess)
+    if count >= 5:
+        return chess
+    
+    # 左上右下
+    count = 1
+    for i in range(1, 5):
+        if row+i <= 单元格数量 and col-i >= 0 and 棋盘地图[row+i][col-i] == chess:
+            count += 1
+        else:
+            break
+    for i in range(1, 5):
+        if row+i <= 单元格数量 and col+i <= 单元格数量 and 棋盘地图[row+i][col+i] == chess:
+            count += 1
+        else:
+            break
+    print("左上右下检查连接棋子数=", count, "chess=", chess)
+    if count >= 5:
+        return chess
     return None
 
 def 坐标转换为下标(pos):
@@ -141,24 +184,20 @@ while True:
             if 事件.button == pygame.BUTTON_LEFT: # 判断是否是鼠标左键
                 鼠标点击位置 = pygame.mouse.get_pos() # 得到鼠标当前的位置
                 print(鼠标点击位置)
-                row, col = 坐标转换为下标(鼠标点击位置)
-                if row is not None and col is not None:
-                    棋盘地图[row][col] = 当前棋子
-                    if check_winner(row, col, 当前棋子) != None:
-                        print("有人赢了")
-                    当前棋子 = 黑棋 if 当前棋子==白棋 else 白棋 # 黑白切换
-                # for 行号 in range(15):
-                #     for 列号 in range(15):
-                #         x = 起始点_x + 列号 * 单元格长度
-                #         y = 起始点_y + 行号 * 单元格长度
-                #         # 判断当前位置偏移值小于20，并且当前位置没有棋子
-                #         if (x - 20 <= 鼠标点击位置[0] <= x + 20) \
-                #             and (y - 20 <= 鼠标点击位置[1] <= y + 20) \
-                #             and 棋盘地图[行号][列号] == 0:
-                #                 棋盘地图[行号][列号] = 当前棋子
-                #                 if check_winner(行号, 行号, 当前棋子) != None:
-                #                     print("有人赢了")
-                #                 当前棋子 = 黑棋 if 当前棋子==白棋 else 白棋 # 黑白切换
+                if not 停止游戏:
+                    row, col = 坐标转换为下标(鼠标点击位置)
+                    if row is not None and col is not None:
+                        棋盘地图[row][col] = 当前棋子
+                        winner = check_winner(row, col, 当前棋子)
+                        if  winner == 黑棋:
+                            print("黑棋赢了")
+                            停止游戏 = True
+                        elif winner == 白棋:
+                            print("白棋赢了")
+                            停止游戏 = True
+                        else:
+                            当前棋子 = 黑棋 if 当前棋子==白棋 else 白棋 # 黑白切换
+               
 
 
     # 填充背景图片
